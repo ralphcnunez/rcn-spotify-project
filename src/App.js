@@ -1,21 +1,67 @@
 import React, { Component } from 'react';
 import './App.css';
 
+  let fakeServerData = {
+    user: {
+      name: 'Ralph',
+      playlists: [
+        {
+          name: 'Workout',
+          songs:[{name:'Hello', duration: 1134}, {name:'I', duration: 1134}, {name:'Workout', duration: 1134}]
+        },
+        {
+          name: 'Study',
+          songs:[{name:'Hey', duration: 1134}, {name:'Start', duration: 1134}, {name:'Studying', duration: 1134}]
 
-class Aggregate extends Component {
+        },
+        {
+          name: 'Drive',
+          songs:[{name:'Please', duration: 1134}, {name:'Drive', duration: 1134}, {name:'{Safe', duration: 1134}]
+
+        },
+        {
+          name: 'Relax',
+          songs:[{name:'Refrain', duration: 1134}, {name:'From', duration: 1134}, {name:'Working', duration: 1134}]
+
+
+        }
+
+    ]
+    }
+  }
+
+
+
+class PlaylistCounter extends Component {
   render (){
     return(
     <div style={{width:'40%', display:'inline-block'}}>
-      <h2 style={{color:'#111'}}>Number Text</h2>
+      <h2 style={{color:'#111'}}>playlists</h2>
     </div>
-      )
+  );
   }
 }
+
+class HoursCounter extends Component {
+
+  render (){
+    let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => {return songs.concat(eachPlaylist.songs)} ,[])
+    console.log(allSongs)
+    let totalDuration = allSongs.reduce((sum, eachSong) => {
+      return sum + eachSong.duration
+    }, 0 )
+    return(
+    <div style={{width:'40%', display:'inline-block'}}>
+      <h2 style={{color:'#111'}}>{Math.round(totalDuration/60)} Hours</h2>
+    </div>
+  );
+  }
+}
+
 class Filter extends Component {
   render() {
     return(
       <div>
-      <img/>
        <input type='text'/>
        Filter
       </div>
@@ -30,24 +76,45 @@ class Playlist extends Component {
       <h3> PlayList Name </h3>
       <ul><li>Hello 1</li><li>Hello 2</li><li>Hello 3</li></ul>
       </div>
-    )
+    );
   }
 }
 
 
+
+
+
 class App extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      serverData: {}
+    };
+  }
+  componentDidMount(){
+    setTimeout(() => {
+      this.setState({serverData: fakeServerData})
+    }, 2000)
+  }
+
   render() {
-    return (
+    return(
+
       <div className="App">
-      <h1> Title </h1>
-      <Aggregate/>
-      <Aggregate/>
+      {this.state.serverData.user ?
+      <div>
+      <h1>{ this.state.serverData.user.name}' Playlist</h1>
+      <PlaylistCounter playlists={this.state.serverData.user.playlists} />
+      <HoursCounter playlists= {this.state.serverData.user.playlists}/>
       <Filter/>
       <Playlist/>
       <Playlist/>
       <Playlist/>
-
-      </div>
+      <Playlist/>
+      </div> : <h1>'loding'</h1>
+    }
+    </div>
     );
   }
 }
