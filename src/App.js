@@ -16,7 +16,7 @@ import './App.css';
         },
         {
           name: 'Drive',
-          songs:[{name:'Please', duration: 1134}, {name:'Drive', duration: 1134}, {name:'{Safe', duration: 1134}]
+          songs:[{name:'Please', duration: 1134}, {name:'Drive', duration: 1134}, {name:'Safe', duration: 1134}]
 
         },
         {
@@ -58,6 +58,7 @@ class HoursCounter extends Component {
   }
 }
 
+
 class Filter extends Component {
   render() {
     return(
@@ -71,10 +72,15 @@ class Filter extends Component {
 
 class Playlist extends Component {
   render() {
+    console.log(this.props)
     return (
      <div style={{color: 'white', width:'20%', display:'inline-block'}}>
-      <h3> PlayList Name </h3>
-      <ul><li>Hello 1</li><li>Hello 2</li><li>Hello 3</li></ul>
+      <h3> {this.props.playlist.name} </h3>
+      <ul>
+      {this.props.playlist.songs.map(song => <li> {song.name}</li> )}
+
+
+      </ul>
       </div>
     );
   }
@@ -108,10 +114,7 @@ class App extends Component {
       <PlaylistCounter playlists={this.state.serverData.user.playlists} />
       <HoursCounter playlists= {this.state.serverData.user.playlists}/>
       <Filter/>
-      <Playlist/>
-      <Playlist/>
-      <Playlist/>
-      <Playlist/>
+      {this.state.serverData.user.playlists.map(playlist => <Playlist playlist={playlist}/> )}
       </div> : <h1>'loding'</h1>
     }
     </div>
