@@ -46,7 +46,6 @@ class HoursCounter extends Component {
 
   render (){
     let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => {return songs.concat(eachPlaylist.songs)} ,[])
-    console.log(allSongs)
     let totalDuration = allSongs.reduce((sum, eachSong) => {
       return sum + eachSong.duration
     }, 0 )
@@ -63,7 +62,8 @@ class Filter extends Component {
   render() {
     return(
       <div>
-       <input type='text'/>
+       <input type='text' onKeyUp = {e =>
+       this.props.onTextChange(e.target.value)}/>
        Filter
       </div>
     );
@@ -72,7 +72,6 @@ class Filter extends Component {
 
 class Playlist extends Component {
   render() {
-    console.log(this.props)
     return (
      <div style={{color: 'white', width:'20%', display:'inline-block'}}>
       <h3> {this.props.playlist.name} </h3>
@@ -95,13 +94,17 @@ class App extends Component {
     super();
 
     this.state = {
-      serverData: {}
+      serverData: {},
+      filterString: ''
     };
   }
   componentDidMount(){
     setTimeout(() => {
       this.setState({serverData: fakeServerData})
-    }, 2000)
+    }, 1000)
+    setTimeout(() => {
+      this.setState({filterString: ''})
+    }, 1000)
   }
 
   render() {
@@ -113,10 +116,13 @@ class App extends Component {
       <h1>{ this.state.serverData.user.name}' Playlist</h1>
       <PlaylistCounter playlists={this.state.serverData.user.playlists} />
       <HoursCounter playlists= {this.state.serverData.user.playlists}/>
-      <Filter/>
-      {this.state.serverData.user.playlists.map(playlist => <Playlist playlist={playlist}/> )}
+      <Filter onTextChange = {text => this.setState({filterString: text})}/>
+      {this.state.serverData.user.playlists.filter(playlist=>
+        playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase())
+      ).map(playlist => <Playlist playlist={playlist}/>
+        )}
       </div> : <h1>'loding'</h1>
-    }
+     }
     </div>
     );
   }
