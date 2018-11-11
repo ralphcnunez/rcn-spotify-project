@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import queryString from 'query-string'
 
   let fakeServerData = {
     user: {
@@ -9,24 +10,7 @@ import './App.css';
           name: 'Workout',
           songs:[{name:'Hello', duration: 1134}, {name:'I', duration: 1134}, {name:'Workout', duration: 1134}]
         },
-        {
-          name: 'Study',
-          songs:[{name:'Hey', duration: 1134}, {name:'Start', duration: 1134}, {name:'Studying', duration: 1134}]
-
-        },
-        {
-          name: 'Drive',
-          songs:[{name:'Please', duration: 1134}, {name:'Drive', duration: 1134}, {name:'Safe', duration: 1134}]
-
-        },
-        {
-          name: 'Relax',
-          songs:[{name:'Refrain', duration: 1134}, {name:'From', duration: 1134}, {name:'Working', duration: 1134}]
-
-
-        }
-
-    ]
+      ]
     }
   }
 
@@ -45,10 +29,11 @@ class PlaylistCounter extends Component {
 class HoursCounter extends Component {
 
   render (){
-    let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => {return songs.concat(eachPlaylist.songs)} ,[])
+    let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => {
+      return songs.concat(eachPlaylist.songs)} ,[])
     let totalDuration = allSongs.reduce((sum, eachSong) => {
       return sum + eachSong.duration
-    }, 0 )
+    }, 0)
     return(
     <div style={{width:'40%', display:'inline-block'}}>
       <h2 style={{color:'#111'}}>{Math.round(totalDuration/60)} Hours</h2>
@@ -99,29 +84,36 @@ class App extends Component {
     };
   }
   componentDidMount(){
-    setTimeout(() => {
-      this.setState({serverData: fakeServerData})
-    }, 1000)
-    setTimeout(() => {
-      this.setState({filterString: ''})
-    }, 1000)
+    let parsed = queryString.parse(window.location.search);
+    let accessToken = parsed.access_token
+
+    fetch('https://api.spotify.com/v1/me',{
+       headers: { 'Authorization': 'Bearer ' + accessToken }
+     }).then(response => response.json())
+  .then(data => this.setState({serverData: {user: {name: data.display_name}}}))
+
   }
 
   render() {
+    let playlistToRender = this.state.serverData.user &&
+     this.state.serverData.user.playlists
+     ? this.state.serverData.user.playlists.filter(playlist=>
+      playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase()))
+      : []
     return(
 
       <div className="App">
       {this.state.serverData.user ?
       <div>
-      <h1>{ this.state.serverData.user.name}' Playlist</h1>
-      <PlaylistCounter playlists={this.state.serverData.user.playlists} />
-      <HoursCounter playlists= {this.state.serverData.user.playlists}/>
-      <Filter onTextChange = {text => this.setState({filterString: text})}/>
-      {this.state.serverData.user.playlists.filter(playlist=>
-        playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase())
-      ).map(playlist => <Playlist playlist={playlist}/>
+        <h1>{ this.state.serverData.user.name}' Playlist</h1>
+        <PlaylistCounter playlists ={playlistToRender} />
+        <HoursCounter playlists= {playlistToRender}/>
+        <Filter onTextChange = {text => this.setState({filterString: text})}/>
+          {playlistToRender.map(playlist => <Playlist playlist={playlist}/>
         )}
-      </div> : <h1>'loding'</h1>
+      </div>
+      : <button onClick={()=> window.location = 'http://localhost:8888/login'}
+      style={{padding: '20px', 'font                                                                                                                                      ize': '50px','marginTop':'20px'}}>Sign in with Spotify</button>
      }
     </div>
     );
