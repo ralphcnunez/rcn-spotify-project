@@ -1,5 +1,5 @@
 
-# rcn-spotify-project in React
+## rcn-spotify-project in React
 
 # Directions
 # CD into rcn-spotify-project and run npm start
